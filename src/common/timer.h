@@ -35,7 +35,7 @@ namespace common
         */
         void stop()
         {
-            m_bStop = TRUE;
+            m_bStop = true;
         }
 
         /*
@@ -78,7 +78,7 @@ namespace common
         static void* run(void* param);
 
     private:
-        CThread m_iThread;
+        common::CThread m_iThread;
         int m_nDelay;
         int m_nPeriod;
         RUNNABLE m_pfnRunnable;

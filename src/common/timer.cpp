@@ -22,6 +22,12 @@ namespace common
 
     void* CTimer::run(void* param)
     {
+        if (NULL == param)
+        {
+            LOG_ERROR("CTimer thread, invalid param!");
+            return NULL;
+        }
+        
         CTimer* timer = (CTimer*)param;
         if (timer->isStop())
         {
