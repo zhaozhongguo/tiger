@@ -9,6 +9,7 @@
 #define __CONFIG__H
 #include <map>
 #include <string>
+#include <string.h>
 
 namespace common
 {
@@ -18,17 +19,17 @@ namespace common
     * @brief 配置解析工具
     * 用于解析配置文件
     */ 
-    class CConfig:
+    class CConfig
     {
     public:
         CConfig()
         {
-            m_filename = "";
+            m_strFilename = "";
         }
 
         CConfig(const char* filename)
         {
-            m_filename = std::string(filename);
+            m_strFilename = std::string(filename);
         }
 
         ~CConfig();

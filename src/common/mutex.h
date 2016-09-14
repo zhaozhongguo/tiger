@@ -8,17 +8,18 @@
 #ifndef __MUTEX_H
 #define __MUTEX_H
 #include <pthread.h>
+#include "log.h"
 
 namespace common
 {
-    class common::CCond;
+    class CCond;
 
     /** 
     * @brief 互斥锁
     */ 
     class CMutex
     {
-    friend class common::CCond;
+    friend class CCond;
 
     public:
         CMutex() {};

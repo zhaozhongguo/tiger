@@ -5,6 +5,7 @@
 * @date  2016-9-12 
 * @version  1.0
 */
+#include <fstream>
 #include "config.h"
 #include "log.h"
 namespace common
@@ -16,15 +17,15 @@ namespace common
     }
 
 
-    void CConfig::loadConf()
+    void CConfig::loadConfig()
     {
-        if (m_filename.empty())
+        if (m_strFilename.empty())
         {
             LOG_ERROR_FMT("config filename is empty!");
             return;
         }
 
-        std::ifstream file(m_filename.c_str());
+        std::ifstream file(m_strFilename.c_str());
         char buf[256] = {0};
         std::map<std::string, std::string>* block = NULL;
         while (!file.eof())
@@ -45,7 +46,7 @@ namespace common
                 case '[':
                 {
                     block = new std::map<std::string, std::string>();
-                    m_configs.insert(std::pair<std::string, std::map<std::string, std::string>* >(line.substr(1, line.find(']') - 1), block));
+                    m_mConfigs.insert(std::pair<std::string, std::map<std::string, std::string>* >(line.substr(1, line.find(']') - 1), block));
                     break;
                 }
                 default:
@@ -65,14 +66,14 @@ namespace common
         }
 
         file.close();
-        LOG_INFO_FMT("load %s file success", m_filename.c_str());
+        LOG_INFO_FMT("load %s file success", m_strFilename.c_str());
     }
 
 
     const char* CConfig::getConfig(const char* block, const char* key)
     {
-        std::map<std::string, std::map<std::string, std::string>* >::iterator iter = m_configs.find(std::string(block));
-        if (iter != m_configs.end())
+        std::map<std::string, std::map<std::string, std::string>* >::iterator iter = m_mConfigs.find(std::string(block));
+        if (iter != m_mConfigs.end())
         {
             std::map<std::string, std::string>::iterator it = iter->second->find(std::string(key));
             if (it != iter->second->end())
@@ -89,12 +90,12 @@ namespace common
     {
         std::map<std::string, std::map<std::string, std::string>* >::iterator iter;
         std::map<std::string, std::string>::iterator it;
-        for (iter = m_configs.begin(); iter != m_configs.end(); iter++)
+        for (iter = m_mConfigs.begin(); iter != m_mConfigs.end(); iter++)
         {
             iter->second->erase(iter->second->begin(), iter->second->end());
             delete iter->second;
         }
-        m_configs.erase(m_configs.begin(), m_configs.end());
+        m_mConfigs.erase(m_mConfigs.begin(), m_mConfigs.end());
     }
 
 }

@@ -5,6 +5,7 @@
 * @date  2016-9-12 
 * @version  1.0
 */
+#include <unistd.h>
 #include "timer.h"
 #include "log.h"
 
@@ -41,7 +42,7 @@ namespace common
         int period = timer->getPeriod() * 1000;
         RUNNABLE runnable = timer->getRunnable();
         usleep(delay);
-        while (TRUE)
+        while (true)
         {
             if (timer->isStop())
             {

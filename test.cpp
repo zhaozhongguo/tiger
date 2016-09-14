@@ -1,19 +1,14 @@
-
-//#include "test.h"
-
-enum ENUM_SOCKET_EVENT
-{
-    SOCKET_CONNECT_EVENT,
-    SOCKET_READ_EVENT,
-    SOCKET_WRITE_EVENT,
-    SOCKET_DISCONNECT_EVENT
-};
-
-
+#include <iostream>
+using namespace std;
 
 int main()
 {
-    ENUM_SOCKET_EVENT event = SOCKET_READ_EVENT;
+    char buf[50] = {0};
+
+    void* p = buf;
+    void* p2 = buf + 2;
+    cout<<((char*)p2 - (char*)p)<<endl;
+    uint32_t dd = 43;
 
     return 0;
 }

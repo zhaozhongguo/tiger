@@ -7,6 +7,7 @@
 */
 #include <pthread.h>
 #include <stdlib.h>
+#include <string.h>
 #include "mem-pool.h"
 #include "log.h"
 
@@ -15,15 +16,15 @@ namespace common
     //内存池的操作
     typedef struct QueueList          //内存池队列
     {
-        uint32_t       totalLen;      //总共的单元个数
-        uint32_t       usableLen;     //可用的
-        void*          data;          //内存池首地址
-        void**         arr;           //存储每块内存的首地址
-        uint32_t       head;          //队列头指针
-        uint32_t       tail;          //队列尾指针
-        void*          mutex;         //锁
-        char*          states;        //防止重复释放,0:没有占用  1:已经占用
-        uint16_t       blockSize;     //内存块大小
+        uint32_t                  totalLen;      //总共的单元个数
+        uint32_t                  usableLen;     //可用的
+        void*                     data;          //内存池首地址
+        void**                    arr;           //存储每块内存的首地址
+        uint32_t                  head;          //队列头指针
+        uint32_t                  tail;          //队列尾指针
+        pthread_mutex_t*          mutex;         //锁
+        char*                     states;        //防止重复释放,0:没有占用  1:已经占用
+        uint16_t                  blockSize;     //内存块大小
     }QueueList_t;
 
 
@@ -37,14 +38,14 @@ namespace common
 
         QueueList_t* qList = (QueueList_t*)list;
         //必须为0
-        if( (data - qList->data) %  qList->blockSize )
+        if( ((char*)data - (char*)qList->data) %  qList->blockSize )
         {
             LOG_ERROR_FMT("mem pool enqueue %p failed, invalid address!", data);
             return false;
         }
 
         //节点的位置
-        int pos = (data - qList->data) /  qList->blockSize;      
+        uint32_t pos = ((char*)data - (char*)qList->data) /  qList->blockSize;      
         if(pos < 0 || pos >= qList->totalLen )
         {
             LOG_ERROR_FMT("mem pool enqueue %p failed, overflow!", data);
@@ -77,7 +78,7 @@ namespace common
     {
         if (NULL == list)
         {
-            LOG_ERROR_FMT("mem pool dequeue %p failed, invalid param!", data);
+            LOG_ERROR("mem pool dequeue failed, invalid param!");
             return NULL;
         }
 
@@ -89,7 +90,7 @@ namespace common
             {
                 uint32_t head = qList->head;
                 unit = qList->arr[head];
-                int pos = (unit - qList->data)  /  qList->blockSize;
+                int pos = ((char*)unit - (char*)qList->data)  /  qList->blockSize;
                 *(qList->states + pos) = 0;
                 qList->usableLen--;
                 qList->head = (head+1)%qList->totalLen;
@@ -106,7 +107,7 @@ namespace common
         QueueList_t *qList = (QueueList_t *)malloc(sizeof(QueueList_t));
         if(NULL == qList) 
         {
-            LOG_ERROR_FMT("mem pool initQueue %p failed, malloc queue failed!", data);
+            LOG_ERROR("mem pool initQueue failed, malloc queue failed!");
             return NULL;
         }
         memset(qList, 0, sizeof(QueueList_t));
@@ -115,7 +116,7 @@ namespace common
         qList->mutex = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
         if(NULL == qList->mutex)
         {
-            LOG_ERROR_FMT("mem pool initQueue %p failed, malloc mutex failed!", data);
+            LOG_ERROR("mem pool initQueue failed, malloc mutex failed!");
             return NULL;
         }   
         pthread_mutex_init(qList->mutex, NULL);
@@ -123,7 +124,7 @@ namespace common
         qList->data = malloc(blockSize * len);
         if(NULL == qList->data)
         {
-            LOG_ERROR_FMT("mem pool initQueue %p failed, malloc pool failed!", data);
+            LOG_ERROR("mem pool initQueue failed, malloc pool failed!");
             return NULL;
         }
         memset(qList->data, 0, blockSize * len);
@@ -131,7 +132,7 @@ namespace common
         qList->arr = (void**)malloc(len * sizeof(void *));
         if(NULL == qList->arr)
         {
-            LOG_ERROR_FMT("mem pool initQueue %p failed, malloc arr failed!", data);
+            LOG_ERROR("mem pool initQueue failed, malloc arr failed!");
             return NULL;
         }
         memset(qList->arr, 0, len * sizeof(void*));
@@ -139,7 +140,7 @@ namespace common
         qList->states = (char*)malloc(len * sizeof(char));
         if(NULL == qList->states)
         {
-            LOG_ERROR_FMT("mem pool initQueue %p failed, malloc states failed!", data);
+            LOG_ERROR("mem pool initQueue failed, malloc states failed!");
             return NULL;
         }
         memset(qList->states, 0, len * sizeof(char));
@@ -151,9 +152,9 @@ namespace common
         qList->totalLen = len;
 
         char* data = NULL;
-        for(int i=0; i < len; i++)
+        for(uint32_t i=0; i < len; i++)
         {
-            data = qList->data + i * blockSize;
+            data = (char*)qList->data + i * blockSize;
             enqueue(qList, data);
         }
 

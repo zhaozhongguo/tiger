@@ -1,6 +1,6 @@
 /**
 * @file  tcp-server.h
-* @brief  常见类型定义
+* @brief  tcp服务
 * @author  zhaozhongguo
 * @date  2016-9-13 
 * @version  1.0
@@ -14,15 +14,6 @@
 
 namespace dispatcher
 {
-    //socket事件类型
-    enum ENUM_SOCKET_EVENT
-    {
-        SOCKET_CONNECT_EVENT,
-        SOCKET_READ_EVENT,
-        SOCKET_WRITE_EVENT,
-        SOCKET_DISCONNECT_EVENT
-    }
-
     typedef void* (*CallBack)(void*);
 
     /** 
@@ -43,7 +34,7 @@ namespace dispatcher
          */
         void registerEvent(ENUM_SOCKET_EVENT event, CallBack pCallBack)
         {
-            m_mRegisters.insert(pair<ENUM_SOCKET_EVENT, CallBack>(event, pCallBack));
+            m_mRegisters.insert(std::pair<ENUM_SOCKET_EVENT, CallBack>(event, pCallBack));
         }
 
         /*
@@ -64,6 +55,7 @@ namespace dispatcher
         */
         bool start()
         {
+            m_bStop = false;
             return m_iThread.create(NULL, run, (void*)this);
         }
 
@@ -73,48 +65,6 @@ namespace dispatcher
         void stop()
         {
             m_bStop = true;
-        }
-
-        /** 
-        * @brief 监听连接请求
-        * @return 成功返回true，失败返回false
-        */
-        bool CTcpServer::listen();
-
-        /** 
-        * @brief 判断服务是否停止
-        * @return 停止返回true，未停止返回false
-        */
-        bool isStop()
-        {
-            return m_bStop;
-        }
-
-        /*
-         * @brief 获取ip
-         * @return 返回ip
-         */
-        uint32_t getIP()
-        {
-            return m_nIp;
-        }
-
-        /*
-         * @brief 获取port
-         * @return 返回port
-         */
-        uint16_t getPort()
-        {
-            return m_nPort;
-        }
-
-        /*
-         * @brief 获取最大连接数
-         * @return 返回最大连接数
-         */
-        int getMaxConns()
-        {
-            return m_nMaxConns;
         }
 
         /*
@@ -127,7 +77,23 @@ namespace dispatcher
         }
 
     private:
+        //线程入口函数
         static void* run(void* param);
+
+        //监听
+        bool listen();
+
+        //循环处理事件
+        void process();
+
+        //处理新连接事件
+        void acceptEvent();
+
+        //处理读事件
+        void readEvent(int fd);
+
+        //处理写事件
+        void writeEvent(int fd);
 
     private:
         uint32_t m_nIp;

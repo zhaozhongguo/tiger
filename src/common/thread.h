@@ -8,6 +8,7 @@
 #ifndef __MUTEX_H
 #define __MUTEX_H
 #include <pthread.h>
+#include "log.h"
 
 namespace common
 {

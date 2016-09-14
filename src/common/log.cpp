@@ -14,6 +14,6 @@ log4cplus::Logger logger;
 
 void initLogger()
 {    
-    log4cplus::PropertyConfigurator::doConfigure(LOG4CPLUS_TEXT("../conf/log4cplus.properties"));
+    log4cplus::PropertyConfigurator::doConfigure(LOG4CPLUS_TEXT("../../conf/log4cplus.properties"));
     logger = log4cplus::Logger::getRoot();
 }

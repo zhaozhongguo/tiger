@@ -9,6 +9,7 @@
 #define __TIMER_H
 #include "thread.h"
 
+
 namespace common
 {
     typedef void (*RUNNABLE)();
@@ -44,7 +45,7 @@ namespace common
          */
         int getDelay()
         {
-            return m_iDelay;
+            return m_nDelay;
         }
 
         /*
@@ -53,7 +54,7 @@ namespace common
          */
         int getPeriod()
         {
-            return m_iPeriod;
+            return m_nPeriod;
         }
 
         /*
@@ -62,7 +63,7 @@ namespace common
          */
         RUNNABLE getRunnable()
         {
-            return m_fnRunnable;
+            return m_pfnRunnable;
         }
 
         /** 
