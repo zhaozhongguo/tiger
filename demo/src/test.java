@@ -4,7 +4,7 @@ public class Main{
         //To Do
         String str="0000";
 
-
+        System.out.println(str);
 
 
 
